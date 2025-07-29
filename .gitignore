@@ -58,20 +58,21 @@ app.*.symbols
 app.*.map.json
 
 # ===== ANDROID (keep only essential config) =====
-/android/app/debug/
-/android/app/profile/
-/android/app/release/
-/android/app/build/
-/android/.gradle/
-/android/gradle/
-/android/local.properties
-/android/gradlew
-/android/gradlew.bat
-/android/gradle.properties
-/android/settings.gradle
-/android/build.gradle
-/android/app/build.gradle
-/android/.gitignore
+# /android/app/debug/
+# /android/app/profile/
+# /android/app/release/
+# /android/app/build/
+# /android/.gradle/
+# /android/gradle/
+# /android/local.properties
+# /android/gradlew
+# /android/gradlew.bat
+# /android/gradle.properties
+# /android/settings.gradle
+# /android/build.gradle
+# /android/app/build.gradle
+# /android/.gitignore
+/android
 
 # Keep only AndroidManifest.xml
 !/android/app/src/main/AndroidManifest.xml
