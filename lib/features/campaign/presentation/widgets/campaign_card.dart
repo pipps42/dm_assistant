@@ -1,9 +1,10 @@
 // lib/features/campaign/presentation/widgets/campaign_card.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:dm_assistant/features/campaign/models/campaign.dart';
 import 'package:dm_assistant/features/campaign/providers/campaign_provider.dart';
-import 'package:dm_assistant/features/campaign/presentation/widgets/edit_campaign_dialog.dart';
+import 'package:dm_assistant/features/campaign/presentation/screens/campaign_dialog.dart';
 import 'package:dm_assistant/shared/components/tiles/entity_list_tile.dart';
 import 'package:dm_assistant/shared/components/menus/context_menu.dart';
 import 'package:dm_assistant/shared/components/dialogs/base_dialog.dart';
@@ -35,13 +36,10 @@ class CampaignCard extends ConsumerWidget {
   }
 
   Future<void> _handleEdit(BuildContext context, WidgetRef ref) async {
-    final updated = await showDialog<Campaign>(
+    showDialog(
       context: context,
-      builder: (_) => CampaignFormDialog(existing: campaign),
+      builder: (context) => CampaignDialog(campaign: campaign),
     );
-    if (updated != null) {
-      await ref.read(campaignEntityNotifierProvider.notifier).update(updated);
-    }
   }
 
   Future<void> _handleDelete(BuildContext context, WidgetRef ref) async {
@@ -50,8 +48,8 @@ class CampaignCard extends ConsumerWidget {
       dialog: BaseDialog.confirm(
         title: 'Delete Campaign?',
         content: Text('Delete "${campaign.name}"? This cannot be undone.'),
-        onConfirm: () => Navigator.pop(context, true),
-        onCancel: () => Navigator.pop(context, false),
+        onConfirm: () => context.pop(true),
+        onCancel: () => context.pop(false),
         confirmText: 'Delete',
         cancelText: 'Cancel',
       ),

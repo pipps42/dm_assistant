@@ -1,5 +1,6 @@
 // lib/shared/components/dialogs/base_dialog.dart
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:dm_assistant/core/constants/dimens.dart';
 import 'package:dm_assistant/shared/components/buttons/base_button.dart';
 
@@ -165,7 +166,7 @@ class BaseDialog extends StatelessWidget {
                   if (dismissible)
                     IconButton(
                       icon: const Icon(Icons.close),
-                      onPressed: () => Navigator.of(context).pop(),
+                      onPressed: () => context.pop(),
                       color: theme.colorScheme.onSurface.withOpacity(0.5),
                     ),
                 ],
@@ -218,7 +219,7 @@ class BaseDialog extends StatelessWidget {
         onPressed: () {
           action.onPressed();
           if (action.shouldClose) {
-            Navigator.of(context).pop();
+            context.pop();
           }
         },
         type: ButtonType.primary,
@@ -229,7 +230,7 @@ class BaseDialog extends StatelessWidget {
         onPressed: () {
           action.onPressed();
           if (action.shouldClose) {
-            Navigator.of(context).pop();
+            context.pop();
           }
         },
         type: ButtonType.secondary,
@@ -240,7 +241,7 @@ class BaseDialog extends StatelessWidget {
         onPressed: () {
           action.onPressed();
           if (action.shouldClose) {
-            Navigator.of(context).pop();
+            context.pop();
           }
         },
         type: ButtonType.text,

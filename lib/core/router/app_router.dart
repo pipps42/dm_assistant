@@ -14,16 +14,9 @@ final appRouter = GoRouter(
           path: '/campaigns',
           pageBuilder: (context, state) => NoTransitionPage(
             key: state.pageKey,
-            child: DesktopShell(
+            child: const DesktopShell(
               title: 'Campaigns',
-              child: const CampaignListScreen(),
-              floatingActionButton: FloatingActionButton.extended(
-                onPressed: () {
-                  // This will be handled by the screen
-                },
-                icon: const Icon(Icons.add),
-                label: const Text('New Campaign'),
-              ),
+              child: CampaignListScreen(),
             ),
           ),
         ),

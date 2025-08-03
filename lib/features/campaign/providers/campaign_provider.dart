@@ -54,8 +54,8 @@ class CampaignEntityProvider extends DnDEntityProvider<Campaign> {
   }
 
   // Create campaign with factory method
-  Future<void> createCampaign(String name, String? description) async {
-    final campaign = Campaign.create(name: name, description: description);
+  Future<void> createCampaign(String name, String? description, [String? coverImagePath]) async {
+    final campaign = Campaign.create(name: name, description: description, coverImagePath: coverImagePath);
     await create(campaign);
   }
 }
@@ -65,9 +65,18 @@ class CampaignEntityNotifier extends EntityNotifier<Campaign> {
   CampaignEntityNotifier(super.repository, super.ref, super.listProvider);
 
   // Campaign-specific create method
-  Future<void> createCampaign(String name, String? description) async {
-    final campaign = Campaign.create(name: name, description: description);
+  Future<void> createCampaign(String name, String? description, [String? coverImagePath]) async {
+    final campaign = Campaign.create(name: name, description: description, coverImagePath: coverImagePath);
     await create(campaign);
+  }
+
+  // Campaign-specific update method
+  Future<void> updateCampaign(Id id, String name, String? description, [String? coverImagePath]) async {
+    final existing = await repository.getById(id);
+    if (existing != null) {
+      final updated = existing.copyWith(name: name, description: description, coverImagePath: coverImagePath);
+      await update(updated);
+    }
   }
 
   // Update last played when starting a session
@@ -158,6 +167,10 @@ final campaignFilterProvider =
 
 // Selected campaign state
 final selectedCampaignIdProvider = StateProvider<Id?>((ref) => null);
+
+// View mode state for campaigns (list or grid)
+enum CampaignViewMode { list, grid }
+final campaignViewModeProvider = StateProvider<CampaignViewMode>((ref) => CampaignViewMode.list);
 
 final selectedCampaignProvider = Provider<AsyncValue<Campaign?>>((ref) {
   final selectedId = ref.watch(selectedCampaignIdProvider);

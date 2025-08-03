@@ -6,6 +6,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:dm_assistant/core/theme/app_theme.dart';
 import 'package:dm_assistant/core/router/app_router.dart';
 import 'package:dm_assistant/features/campaign/models/campaign.dart';
+import 'package:dm_assistant/features/character/models/character.dart';
 import 'package:dm_assistant/features/campaign/providers/campaign_provider.dart';
 
 void main() async {
@@ -13,7 +14,7 @@ void main() async {
 
   // Initialize Isar
   final dir = await getApplicationDocumentsDirectory();
-  final isar = await Isar.open([CampaignSchema], directory: dir.path);
+  final isar = await Isar.open([CampaignSchema, CharacterSchema], directory: dir.path);
 
   runApp(
     ProviderScope(
