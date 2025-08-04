@@ -1,9 +1,13 @@
 // lib/core/router/app_router.dart
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:dm_assistant/features/campaign/presentation/screens/campaign_list_screen.dart';
 import 'package:dm_assistant/features/character/presentation/screens/character_list_screen.dart';
+import 'package:dm_assistant/features/character/presentation/screens/character_detail_screen.dart';
+import 'package:dm_assistant/features/character/providers/character_provider.dart';
 import 'package:dm_assistant/shared/layouts/desktop_shell.dart';
+import 'package:dm_assistant/shared/components/navigation/breadcrumb_widget.dart';
 
 final appRouter = GoRouter(
   initialLocation: '/campaigns',
@@ -15,9 +19,9 @@ final appRouter = GoRouter(
           path: '/campaigns',
           pageBuilder: (context, state) => NoTransitionPage(
             key: state.pageKey,
-            child: const DesktopShell(
-              title: 'Campaigns',
-              child: CampaignListScreen(),
+            child: DesktopShell(
+              breadcrumbs: BreadcrumbBuilder.forSection('Campaigns'),
+              child: const CampaignListScreen(),
             ),
           ),
         ),
@@ -25,18 +29,30 @@ final appRouter = GoRouter(
           path: '/characters',
           pageBuilder: (context, state) => NoTransitionPage(
             key: state.pageKey,
-            child: const DesktopShell(
-              title: 'Characters',
-              child: CharacterListScreen(),
+            child: DesktopShell(
+              breadcrumbs: BreadcrumbBuilder.forSection('Characters'),
+              child: const CharacterListScreen(),
             ),
           ),
+          routes: [
+            GoRoute(
+              path: '/:characterId',
+              pageBuilder: (context, state) {
+                final characterId = int.parse(state.pathParameters['characterId']!);
+                return NoTransitionPage(
+                  key: state.pageKey,
+                  child: _CharacterDetailShell(characterId: characterId),
+                );
+              },
+            ),
+          ],
         ),
         GoRoute(
           path: '/sessions',
           pageBuilder: (context, state) => NoTransitionPage(
             key: state.pageKey,
             child: DesktopShell(
-              title: 'Sessions',
+              breadcrumbs: BreadcrumbBuilder.forSection('Sessions'),
               child: Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -58,7 +74,7 @@ final appRouter = GoRouter(
           pageBuilder: (context, state) => NoTransitionPage(
             key: state.pageKey,
             child: DesktopShell(
-              title: 'Maps',
+              breadcrumbs: BreadcrumbBuilder.forSection('Maps'),
               child: Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -80,7 +96,7 @@ final appRouter = GoRouter(
           pageBuilder: (context, state) => NoTransitionPage(
             key: state.pageKey,
             child: DesktopShell(
-              title: 'Dice Roller',
+              breadcrumbs: BreadcrumbBuilder.forSection('Dice Roller'),
               child: Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -102,7 +118,7 @@ final appRouter = GoRouter(
           pageBuilder: (context, state) => NoTransitionPage(
             key: state.pageKey,
             child: DesktopShell(
-              title: 'Compendium',
+              breadcrumbs: BreadcrumbBuilder.forSection('Compendium'),
               child: Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -128,7 +144,7 @@ final appRouter = GoRouter(
           pageBuilder: (context, state) => NoTransitionPage(
             key: state.pageKey,
             child: DesktopShell(
-              title: 'Initiative Tracker',
+              breadcrumbs: BreadcrumbBuilder.forSection('Initiative Tracker'),
               child: Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -150,7 +166,7 @@ final appRouter = GoRouter(
           pageBuilder: (context, state) => NoTransitionPage(
             key: state.pageKey,
             child: DesktopShell(
-              title: 'Settings',
+              breadcrumbs: BreadcrumbBuilder.forSection('Settings'),
               child: Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -171,3 +187,42 @@ final appRouter = GoRouter(
     ),
   ],
 );
+
+// Widget wrapper to provide character name for breadcrumb
+class _CharacterDetailShell extends ConsumerWidget {
+  final int characterId;
+
+  const _CharacterDetailShell({required this.characterId});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final characterAsync = ref.watch(characterProvider(characterId));
+
+    return characterAsync.when(
+      data: (character) => DesktopShell(
+        breadcrumbs: BreadcrumbBuilder.forEntityDetail(
+          sectionName: 'Characters',
+          sectionRoute: '/characters',
+          entityName: character?.name ?? 'Unknown Character',
+        ),
+        child: CharacterDetailScreen(characterId: characterId),
+      ),
+      loading: () => DesktopShell(
+        breadcrumbs: BreadcrumbBuilder.forEntityDetail(
+          sectionName: 'Characters',
+          sectionRoute: '/characters',
+          entityName: 'Loading...',
+        ),
+        child: const Center(child: CircularProgressIndicator()),
+      ),
+      error: (error, stack) => DesktopShell(
+        breadcrumbs: BreadcrumbBuilder.forEntityDetail(
+          sectionName: 'Characters',
+          sectionRoute: '/characters',
+          entityName: 'Error',
+        ),
+        child: const Center(child: Text('Failed to load character')),
+      ),
+    );
+  }
+}

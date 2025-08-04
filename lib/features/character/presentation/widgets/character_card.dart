@@ -31,8 +31,7 @@ class CharacterCard extends ConsumerWidget {
           'level': character.level.toString(),
         },
         onTap: () {
-          ref.read(selectedCharacterIdProvider.notifier).state = character.id;
-          // TODO: Navigate to character detail view
+          context.go('/characters/${character.id}');
         },
         onEdit: () => _handleEdit(context, ref),
         onDelete: () => _handleDelete(context, ref),

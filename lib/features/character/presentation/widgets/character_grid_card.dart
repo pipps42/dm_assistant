@@ -1,6 +1,7 @@
 // lib/features/character/presentation/widgets/character_grid_card.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:dm_assistant/features/character/models/character.dart';
 import 'package:dm_assistant/features/character/providers/character_provider.dart';
 import 'package:dm_assistant/features/character/presentation/screens/character_dialog.dart';
@@ -36,8 +37,7 @@ class CharacterGridCard extends ConsumerWidget {
           ),
         ],
         onTap: () {
-          ref.read(selectedCharacterIdProvider.notifier).state = character.id;
-          // TODO: Navigate to character detail view
+          context.go('/characters/${character.id}');
         },
       ),
     );

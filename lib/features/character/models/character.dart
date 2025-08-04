@@ -32,6 +32,9 @@ class Character {
   @Enumerated(EnumType.name)
   DndAlignment? alignment;
 
+  // Extended character information
+  String? backgroundText;
+
   Character({
     required this.name,
     this.avatarPath,
@@ -43,6 +46,7 @@ class Character {
     required this.level,
     this.background,
     this.alignment,
+    this.backgroundText,
   });
 
   factory Character.create({
@@ -55,6 +59,7 @@ class Character {
     int level = 1,
     DndBackground? background,
     DndAlignment? alignment,
+    String? backgroundText,
   }) {
     final now = DateTime.now();
     return Character(
@@ -68,6 +73,7 @@ class Character {
       level: level,
       background: background,
       alignment: alignment,
+      backgroundText: backgroundText,
     );
   }
 
@@ -81,6 +87,7 @@ class Character {
     int? level,
     DndBackground? background,
     DndAlignment? alignment,
+    String? backgroundText,
   }) {
     return Character(
       name: name ?? this.name,
@@ -93,6 +100,7 @@ class Character {
       level: level ?? this.level,
       background: background ?? this.background,
       alignment: alignment ?? this.alignment,
+      backgroundText: backgroundText ?? this.backgroundText,
     )..id = id;
   }
 

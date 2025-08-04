@@ -2,11 +2,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dm_assistant/shared/layouts/sidebar_navigation.dart';
+import 'package:dm_assistant/shared/components/navigation/breadcrumb_widget.dart';
 import 'package:dm_assistant/core/constants/dimens.dart';
 
 class DesktopShell extends ConsumerWidget {
   final Widget child;
   final String? title;
+  final List<BreadcrumbItem>? breadcrumbs;
   final List<Widget>? actions;
   final Widget? floatingActionButton;
 
@@ -14,6 +16,7 @@ class DesktopShell extends ConsumerWidget {
     super.key,
     required this.child,
     this.title,
+    this.breadcrumbs,
     this.actions,
     this.floatingActionButton,
   });
@@ -33,7 +36,7 @@ class DesktopShell extends ConsumerWidget {
             child: Column(
               children: [
                 // App bar
-                if (title != null)
+                if (title != null || breadcrumbs != null)
                   Container(
                     height: 64,
                     decoration: BoxDecoration(
@@ -48,10 +51,7 @@ class DesktopShell extends ConsumerWidget {
                       children: [
                         const SizedBox(width: AppDimens.spacingL),
                         Expanded(
-                          child: Text(
-                            title!,
-                            style: theme.textTheme.headlineSmall,
-                          ),
+                          child: _buildHeaderContent(theme),
                         ),
                         if (actions != null) ...actions!,
                         const SizedBox(width: AppDimens.spacingL),
@@ -68,5 +68,17 @@ class DesktopShell extends ConsumerWidget {
       ),
       floatingActionButton: floatingActionButton,
     );
+  }
+
+  Widget _buildHeaderContent(ThemeData theme) {
+    if (breadcrumbs != null && breadcrumbs!.isNotEmpty) {
+      return BreadcrumbWidget(items: breadcrumbs!);
+    } else if (title != null) {
+      return Text(
+        title!,
+        style: theme.textTheme.headlineSmall,
+      );
+    }
+    return const SizedBox.shrink();
   }
 }
