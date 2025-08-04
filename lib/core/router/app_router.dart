@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:dm_assistant/features/campaign/presentation/screens/campaign_list_screen.dart';
+import 'package:dm_assistant/features/character/presentation/screens/character_list_screen.dart';
 import 'package:dm_assistant/shared/layouts/desktop_shell.dart';
 
 final appRouter = GoRouter(
@@ -24,21 +25,9 @@ final appRouter = GoRouter(
           path: '/characters',
           pageBuilder: (context, state) => NoTransitionPage(
             key: state.pageKey,
-            child: DesktopShell(
+            child: const DesktopShell(
               title: 'Characters',
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.people, size: 64, color: Colors.grey.shade400),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Characters feature coming soon',
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                  ],
-                ),
-              ),
+              child: CharacterListScreen(),
             ),
           ),
         ),

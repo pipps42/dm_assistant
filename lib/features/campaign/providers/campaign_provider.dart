@@ -89,20 +89,17 @@ class CampaignEntityNotifier extends EntityNotifier<Campaign> {
   }
 }
 
-// Main providers using the generic entity system
-final campaignEntityProvider =
-    StateNotifierProvider<CampaignEntityProvider, AsyncValue<List<Campaign>>>((
-      ref,
-    ) {
-      final repository = ref.watch(campaignRepositoryProvider);
-      return CampaignEntityProvider(repository);
-    });
+// Main providers - data loading via FutureProvider
+final campaignListProvider = FutureProvider<List<Campaign>>((ref) async {
+  final repository = ref.watch(campaignRepositoryProvider);
+  return repository.getAll();
+});
 
-final campaignEntityNotifierProvider =
-    StateNotifierProvider<CampaignEntityNotifier, AsyncValue<void>>((ref) {
-      final repository = ref.watch(campaignRepositoryProvider);
-      return CampaignEntityNotifier(repository, ref, campaignEntityProvider);
-    });
+// CRUD operations via StateNotifierProvider (without auto-loading)
+final campaignCrudProvider = StateNotifierProvider<CampaignEntityNotifier, AsyncValue<void>>((ref) {
+  final repository = ref.watch(campaignRepositoryProvider);
+  return CampaignEntityNotifier(repository, ref, campaignListProvider);
+});
 
 // Single campaign providers
 final campaignProvider = FutureProvider.family<Campaign?, Id>((ref, id) {

@@ -56,9 +56,7 @@ class CampaignCard extends ConsumerWidget {
     );
 
     if (confirmed == true) {
-      await ref
-          .read(campaignEntityNotifierProvider.notifier)
-          .deleteById(campaign.id);
+      await ref.read(campaignCrudProvider.notifier).deleteById(campaign.id);
     }
   }
 }

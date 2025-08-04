@@ -17,6 +17,7 @@ DM Assistant is a Flutter desktop application for Dungeons & Dragons campaign ma
 - `flutter test` - Run all tests
 - `flutter analyze` - Run static analysis using flutter_lints
 - `flutter test test/features/campaign/campaign_model_test.dart` - Run specific test file
+- `flutter test test/features/character/` - Run all character tests
 
 ### Build & Run
 - `flutter run -d windows` - Run on Windows
@@ -50,14 +51,22 @@ lib/
 │   ├── utils/              # Utilities (formatters, validators)
 │   └── widgets/            # Core reusable widgets
 ├── features/               # Feature modules (campaign, characters, etc.)
-│   └── campaign/           # Example feature structure:
-│       ├── models/         # Data models with Isar annotations
-│       ├── providers/      # Riverpod providers and notifiers  
-│       ├── repositories/   # Data access layer
-│       └── presentation/   # UI (screens, widgets)
+│   ├── campaign/           # Campaign feature:
+│   │   ├── models/         # Data models with Isar annotations
+│   │   ├── providers/      # Riverpod providers and notifiers  
+│   │   ├── repositories/   # Data access layer
+│   │   └── presentation/   # UI (screens, widgets)
+│   └── character/          # Character feature:
+│       ├── models/         # Character model with D&D properties
+│       ├── providers/      # Character providers and notifiers
+│       ├── repositories/   # Character data access layer
+│       └── presentation/   # Character UI (screens, widgets)
 └── shared/                 # Shared UI components and layouts
     ├── components/         # Reusable UI components (buttons, cards, etc.)
     ├── layouts/            # Layout widgets (DesktopShell, SidebarNavigation)
+    ├── models/             # Shared models (D&D enums, etc.)
+    ├── providers/          # Shared providers (entity_provider)
+    ├── repositories/       # Base repository pattern
     └── widgets/            # Shared widgets
 ```
 
@@ -73,9 +82,17 @@ lib/
 - Repository pattern with async operations
 - Riverpod providers for state management and caching
 - Full CRUD operations with dialog-based forms
+- List/Grid view toggle functionality
+
+**Character System** (implemented):
+- Isar-based storage with campaign relationship (required)
+- D&D 5e properties: race, class, level, background, alignment
+- Repository pattern with filtering and search capabilities
+- Riverpod providers for state management
+- Full CRUD operations with comprehensive test coverage
 
 **Other Features** (placeholder routes):
-- Characters, Sessions, Maps, Dice Roller, Compendium, Initiative Tracker, Settings
+- Sessions, Maps, Dice Roller, Compendium, Initiative Tracker, Settings
 - All routes have placeholder screens with "coming soon" messages
 
 ### Database Models
@@ -84,6 +101,9 @@ lib/
 - Models include factory constructors and copyWith methods
 - Isar instance initialized in `main.dart` and provided via Riverpod (`isarProvider`)
 - Database stored in application documents directory
+- Current schemas: Campaign, Character
+- Character model includes required campaign relationship (campaignId: int)
+- D&D enums stored in `shared/models/dnd_enums.dart` for reusability
 
 ### UI Patterns
 - Feature-based organization with presentation/screens and presentation/widgets
@@ -118,3 +138,20 @@ lib/
 3. Use the Repository → Provider → UI pattern for data flow
 4. All routes should use DesktopShell for consistency
 5. Test business logic, especially model operations and providers
+6. Every entity MUST belong to a campaign (required campaignId relationship)
+7. D&D-related enums should be added to `shared/models/dnd_enums.dart`
+
+## Testing Guidelines
+
+### Repository Tests
+- Use `repository.save(entity)` for create/update operations
+- Use `repository.deleteById(id)` for deletion
+- Use `repository.getById(id)` for retrieval
+- Test with in-memory Isar instances for isolation
+
+### Provider Tests  
+- Use `entityProvider.create(entity)` for creating entities
+- Use `entity.copyWith()` + `entityProvider.update()` for updates
+- Use `entityProvider.deleteById(id)` for deletion
+- Read state directly: `container.read(provider).value!`
+- DO NOT use `.future` on StateNotifier providers

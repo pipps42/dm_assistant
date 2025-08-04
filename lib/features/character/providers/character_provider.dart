@@ -20,7 +20,9 @@ class CharacterEntityProvider extends DnDEntityProvider<Character> {
   // Character-specific methods
   Future<List<Character>> getByCampaignId(int campaignId) async {
     if (repository is CharacterRepository) {
-      return await (repository as CharacterRepository).getByCampaignId(campaignId);
+      return await (repository as CharacterRepository).getByCampaignId(
+        campaignId,
+      );
     }
     return [];
   }
@@ -34,42 +36,68 @@ class CharacterEntityProvider extends DnDEntityProvider<Character> {
 
   Future<List<Character>> getByClass(DndClass characterClass) async {
     if (repository is CharacterRepository) {
-      return await (repository as CharacterRepository).getByClass(characterClass);
+      return await (repository as CharacterRepository).getByClass(
+        characterClass,
+      );
     }
     return [];
   }
 
   Future<List<Character>> getByLevelRange(int minLevel, int maxLevel) async {
     if (repository is CharacterRepository) {
-      return await (repository as CharacterRepository).getByLevelRange(minLevel, maxLevel);
+      return await (repository as CharacterRepository).getByLevelRange(
+        minLevel,
+        maxLevel,
+      );
     }
     return [];
   }
 
-  Future<List<Character>> getByCampaignAndRace(int campaignId, DndRace race) async {
+  Future<List<Character>> getByCampaignAndRace(
+    int campaignId,
+    DndRace race,
+  ) async {
     if (repository is CharacterRepository) {
-      return await (repository as CharacterRepository).getByCampaignAndRace(campaignId, race);
+      return await (repository as CharacterRepository).getByCampaignAndRace(
+        campaignId,
+        race,
+      );
     }
     return [];
   }
 
-  Future<List<Character>> getByCampaignAndClass(int campaignId, DndClass characterClass) async {
+  Future<List<Character>> getByCampaignAndClass(
+    int campaignId,
+    DndClass characterClass,
+  ) async {
     if (repository is CharacterRepository) {
-      return await (repository as CharacterRepository).getByCampaignAndClass(campaignId, characterClass);
+      return await (repository as CharacterRepository).getByCampaignAndClass(
+        campaignId,
+        characterClass,
+      );
     }
     return [];
   }
 
   Future<List<Character>> searchInCampaign(int campaignId, String query) async {
     if (repository is CharacterRepository) {
-      return await (repository as CharacterRepository).searchInCampaign(campaignId, query);
+      return await (repository as CharacterRepository).searchInCampaign(
+        campaignId,
+        query,
+      );
     }
     return [];
   }
 
-  Future<List<Character>> getRecentInCampaign(int campaignId, {int limit = 10}) async {
+  Future<List<Character>> getRecentInCampaign(
+    int campaignId, {
+    int limit = 10,
+  }) async {
     if (repository is CharacterRepository) {
-      return await (repository as CharacterRepository).getRecentInCampaign(campaignId, limit: limit);
+      return await (repository as CharacterRepository).getRecentInCampaign(
+        campaignId,
+        limit: limit,
+      );
     }
     return [];
   }
@@ -77,7 +105,6 @@ class CharacterEntityProvider extends DnDEntityProvider<Character> {
   // Create character with factory method
   Future<void> createCharacter({
     required String name,
-    String? description,
     String? avatarPath,
     required int campaignId,
     required DndRace race,
@@ -88,7 +115,6 @@ class CharacterEntityProvider extends DnDEntityProvider<Character> {
   }) async {
     final character = Character.create(
       name: name,
-      description: description,
       avatarPath: avatarPath,
       campaignId: campaignId,
       race: race,
@@ -108,7 +134,6 @@ class CharacterEntityNotifier extends EntityNotifier<Character> {
   // Character-specific create method
   Future<void> createCharacter({
     required String name,
-    String? description,
     String? avatarPath,
     required int campaignId,
     required DndRace race,
@@ -119,7 +144,6 @@ class CharacterEntityNotifier extends EntityNotifier<Character> {
   }) async {
     final character = Character.create(
       name: name,
-      description: description,
       avatarPath: avatarPath,
       campaignId: campaignId,
       race: race,
@@ -135,7 +159,6 @@ class CharacterEntityNotifier extends EntityNotifier<Character> {
   Future<void> updateCharacter({
     required Id id,
     String? name,
-    String? description,
     String? avatarPath,
     int? campaignId,
     DndRace? race,
@@ -148,7 +171,6 @@ class CharacterEntityNotifier extends EntityNotifier<Character> {
     if (existing != null) {
       final updated = existing.copyWith(
         name: name,
-        description: description,
         avatarPath: avatarPath,
         campaignId: campaignId,
         race: race,
@@ -162,18 +184,18 @@ class CharacterEntityNotifier extends EntityNotifier<Character> {
   }
 }
 
-// Main providers using the generic entity system
-final characterEntityProvider =
-    StateNotifierProvider<CharacterEntityProvider, AsyncValue<List<Character>>>((ref) {
+// Main providers - data loading via FutureProvider
+final characterListProvider = FutureProvider<List<Character>>((ref) async {
   final repository = ref.watch(characterRepositoryProvider);
-  return CharacterEntityProvider(repository);
+  return repository.getAll();
 });
 
-final characterEntityNotifierProvider =
+// CRUD operations via StateNotifierProvider (without auto-loading)
+final characterCrudProvider =
     StateNotifierProvider<CharacterEntityNotifier, AsyncValue<void>>((ref) {
-  final repository = ref.watch(characterRepositoryProvider);
-  return CharacterEntityNotifier(repository, ref, characterEntityProvider);
-});
+      final repository = ref.watch(characterRepositoryProvider);
+      return CharacterEntityNotifier(repository, ref, characterListProvider);
+    });
 
 // Single character providers
 final characterProvider = FutureProvider.family<Character?, Id>((ref, id) {
@@ -181,13 +203,15 @@ final characterProvider = FutureProvider.family<Character?, Id>((ref, id) {
   return repository.getById(id);
 });
 
-final singleCharacterProvider = StateNotifierProvider.family<
-    SingleEntityProvider<Character>,
-    AsyncValue<Character?>,
-    Id>((ref, id) {
-  final repository = ref.watch(characterRepositoryProvider);
-  return SingleEntityProvider<Character>(repository, id);
-});
+final singleCharacterProvider =
+    StateNotifierProvider.family<
+      SingleEntityProvider<Character>,
+      AsyncValue<Character?>,
+      Id
+    >((ref, id) {
+      final repository = ref.watch(characterRepositoryProvider);
+      return SingleEntityProvider<Character>(repository, id);
+    });
 
 // Stream providers for real-time updates
 final characterStreamProvider = StreamProvider<List<Character>>((ref) {
@@ -195,53 +219,74 @@ final characterStreamProvider = StreamProvider<List<Character>>((ref) {
   return repository.watchAll();
 });
 
-final singleCharacterStreamProvider = StreamProvider.family<Character?, Id>((ref, id) {
+final singleCharacterStreamProvider = StreamProvider.family<Character?, Id>((
+  ref,
+  id,
+) {
   final repository = ref.watch(characterRepositoryProvider);
   return repository.watchById(id);
 });
 
 // Campaign-specific character providers
-final campaignCharactersProvider = FutureProvider.family<List<Character>, int>((ref, campaignId) {
+final campaignCharactersProvider = FutureProvider.family<List<Character>, int>((
+  ref,
+  campaignId,
+) {
   final repository = ref.watch(characterRepositoryProvider);
   return repository.getByCampaignId(campaignId);
 });
 
-final recentCampaignCharactersProvider = FutureProvider.family<List<Character>, int>((ref, campaignId) {
-  final repository = ref.watch(characterRepositoryProvider);
-  return repository.getRecentInCampaign(campaignId);
-});
+final recentCampaignCharactersProvider =
+    FutureProvider.family<List<Character>, int>((ref, campaignId) {
+      final repository = ref.watch(characterRepositoryProvider);
+      return repository.getRecentInCampaign(campaignId);
+    });
 
 // Filter providers
-final charactersByRaceProvider = FutureProvider.family<List<Character>, DndRace>((ref, race) {
-  final repository = ref.watch(characterRepositoryProvider);
-  return repository.getByRace(race);
-});
+final charactersByRaceProvider =
+    FutureProvider.family<List<Character>, DndRace>((ref, race) {
+      final repository = ref.watch(characterRepositoryProvider);
+      return repository.getByRace(race);
+    });
 
-final charactersByClassProvider = FutureProvider.family<List<Character>, DndClass>((ref, characterClass) {
-  final repository = ref.watch(characterRepositoryProvider);
-  return repository.getByClass(characterClass);
-});
+final charactersByClassProvider =
+    FutureProvider.family<List<Character>, DndClass>((ref, characterClass) {
+      final repository = ref.watch(characterRepositoryProvider);
+      return repository.getByClass(characterClass);
+    });
 
-final charactersByLevelRangeProvider = FutureProvider.family<List<Character>, Map<String, int>>((ref, levelRange) {
-  final repository = ref.watch(characterRepositoryProvider);
-  return repository.getByLevelRange(levelRange['min']!, levelRange['max']!);
-});
+final charactersByLevelRangeProvider =
+    FutureProvider.family<List<Character>, Map<String, int>>((ref, levelRange) {
+      final repository = ref.watch(characterRepositoryProvider);
+      return repository.getByLevelRange(levelRange['min']!, levelRange['max']!);
+    });
 
 // Search providers
-final characterSearchProvider = FutureProvider.family<List<Character>, String>((ref, query) {
+final characterSearchProvider = FutureProvider.family<List<Character>, String>((
+  ref,
+  query,
+) {
   final repository = ref.watch(characterRepositoryProvider);
   return repository.search(query);
 });
 
-final campaignCharacterSearchProvider = FutureProvider.family<List<Character>, Map<String, dynamic>>((ref, params) {
-  final repository = ref.watch(characterRepositoryProvider);
-  return repository.searchInCampaign(params['campaignId'] as int, params['query'] as String);
-});
+final campaignCharacterSearchProvider =
+    FutureProvider.family<List<Character>, Map<String, dynamic>>((ref, params) {
+      final repository = ref.watch(characterRepositoryProvider);
+      return repository.searchInCampaign(
+        params['campaignId'] as int,
+        params['query'] as String,
+      );
+    });
 
-final characterFilterProvider = FutureProvider.family<List<Character>, Map<String, dynamic>>((ref, filters) {
-  final repository = ref.watch(characterRepositoryProvider);
-  return repository.filter(filters);
-});
+final characterFilterProvider =
+    FutureProvider.family<List<Character>, Map<String, dynamic>>((
+      ref,
+      filters,
+    ) {
+      final repository = ref.watch(characterRepositoryProvider);
+      return repository.filter(filters);
+    });
 
 // Selected character state
 final selectedCharacterIdProvider = StateProvider<Id?>((ref) => null);
@@ -256,4 +301,7 @@ final selectedCharacterProvider = Provider<AsyncValue<Character?>>((ref) {
 
 // View mode state for characters (list or grid)
 enum CharacterViewMode { list, grid }
-final characterViewModeProvider = StateProvider<CharacterViewMode>((ref) => CharacterViewMode.list);
+
+final characterViewModeProvider = StateProvider<CharacterViewMode>(
+  (ref) => CharacterViewMode.list,
+);

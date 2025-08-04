@@ -25,13 +25,6 @@ class CharacterRepository extends DnDEntityRepository<Character> {
     return await collection
         .filter()
         .nameContains(query, caseSensitive: false)
-        .or()
-        .group(
-          (q) => q.descriptionIsNotNull().and().descriptionContains(
-            query,
-            caseSensitive: false,
-          ),
-        )
         .sortByCreatedAtDesc()
         .findAll();
   }
@@ -49,24 +42,35 @@ class CharacterRepository extends DnDEntityRepository<Character> {
     }
 
     if (filters.containsKey('characterClass')) {
-      query = query.and().characterClassEqualTo(filters['characterClass'] as DndClass);
+      query = query.and().characterClassEqualTo(
+        filters['characterClass'] as DndClass,
+      );
     }
 
     if (filters.containsKey('level')) {
       final level = filters['level'];
       if (level is int) {
         query = query.and().levelEqualTo(level);
-      } else if (level is Map && level.containsKey('min') && level.containsKey('max')) {
-        query = query.and().levelBetween(level['min'] as int, level['max'] as int);
+      } else if (level is Map &&
+          level.containsKey('min') &&
+          level.containsKey('max')) {
+        query = query.and().levelBetween(
+          level['min'] as int,
+          level['max'] as int,
+        );
       }
     }
 
     if (filters.containsKey('background')) {
-      query = query.and().backgroundEqualTo(filters['background'] as DndBackground);
+      query = query.and().backgroundEqualTo(
+        filters['background'] as DndBackground,
+      );
     }
 
     if (filters.containsKey('alignment')) {
-      query = query.and().alignmentEqualTo(filters['alignment'] as DndAlignment);
+      query = query.and().alignmentEqualTo(
+        filters['alignment'] as DndAlignment,
+      );
     }
 
     return await query.sortByCreatedAtDesc().findAll();
@@ -111,7 +115,10 @@ class CharacterRepository extends DnDEntityRepository<Character> {
   }
 
   /// Get characters for a specific campaign by race
-  Future<List<Character>> getByCampaignAndRace(int campaignId, DndRace race) async {
+  Future<List<Character>> getByCampaignAndRace(
+    int campaignId,
+    DndRace race,
+  ) async {
     return await collection
         .filter()
         .campaignIdEqualTo(campaignId)
@@ -122,7 +129,10 @@ class CharacterRepository extends DnDEntityRepository<Character> {
   }
 
   /// Get characters for a specific campaign by class
-  Future<List<Character>> getByCampaignAndClass(int campaignId, DndClass characterClass) async {
+  Future<List<Character>> getByCampaignAndClass(
+    int campaignId,
+    DndClass characterClass,
+  ) async {
     return await collection
         .filter()
         .campaignIdEqualTo(campaignId)
@@ -140,17 +150,7 @@ class CharacterRepository extends DnDEntityRepository<Character> {
         .filter()
         .campaignIdEqualTo(campaignId)
         .and()
-        .group(
-          (q) => q
-              .nameContains(query, caseSensitive: false)
-              .or()
-              .group(
-                (q2) => q2.descriptionIsNotNull().and().descriptionContains(
-                  query,
-                  caseSensitive: false,
-                ),
-              ),
-        )
+        .group((q) => q.nameContains(query, caseSensitive: false))
         .sortByCreatedAtDesc()
         .findAll();
   }
@@ -165,7 +165,10 @@ class CharacterRepository extends DnDEntityRepository<Character> {
   }
 
   /// Get recent characters for a specific campaign
-  Future<List<Character>> getRecentInCampaign(int campaignId, {int limit = 10}) async {
+  Future<List<Character>> getRecentInCampaign(
+    int campaignId, {
+    int limit = 10,
+  }) async {
     return await collection
         .filter()
         .campaignIdEqualTo(campaignId)

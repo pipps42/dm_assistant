@@ -10,7 +10,6 @@ class Character {
 
   // Basic properties
   late String name;
-  String? description;
   String? avatarPath;
   late DateTime createdAt;
   late DateTime updatedAt;
@@ -35,7 +34,6 @@ class Character {
 
   Character({
     required this.name,
-    this.description,
     this.avatarPath,
     required this.createdAt,
     required this.updatedAt,
@@ -61,7 +59,6 @@ class Character {
     final now = DateTime.now();
     return Character(
       name: name,
-      description: description,
       avatarPath: avatarPath,
       createdAt: now,
       updatedAt: now,
@@ -87,7 +84,6 @@ class Character {
   }) {
     return Character(
       name: name ?? this.name,
-      description: description ?? this.description,
       avatarPath: avatarPath ?? this.avatarPath,
       createdAt: createdAt,
       updatedAt: DateTime.now(),

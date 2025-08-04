@@ -65,11 +65,7 @@ class CampaignGridCard extends ConsumerWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(
-          icon,
-          size: 12,
-          color: Colors.white.withOpacity(0.8),
-        ),
+        Icon(icon, size: 12, color: Colors.white.withOpacity(0.8)),
         const SizedBox(width: 4),
         Flexible(
           child: Text(
@@ -103,9 +99,7 @@ class CampaignGridCard extends ConsumerWidget {
     );
 
     if (confirmed == true) {
-      await ref
-          .read(campaignEntityNotifierProvider.notifier)
-          .deleteById(campaign.id);
+      await ref.read(campaignCrudProvider.notifier).deleteById(campaign.id);
     }
   }
 }
