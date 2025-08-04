@@ -1,4 +1,5 @@
 // lib/features/character/presentation/screens/character_dialog.dart
+import 'package:dm_assistant/shared/providers/selected_campaign_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dm_assistant/features/character/models/character.dart';
@@ -225,9 +226,7 @@ class CharacterDialog extends ConsumerWidget {
     if (raceValue == null || raceValue.isEmpty) {
       throw Exception('Race is required');
     }
-    final race = DndRace.values.firstWhere(
-      (r) => r.name == raceValue,
-    );
+    final race = DndRace.values.firstWhere((r) => r.name == raceValue);
 
     final classValue = values['characterClass']?.toString();
     if (classValue == null || classValue.isEmpty) {
@@ -239,16 +238,12 @@ class CharacterDialog extends ConsumerWidget {
 
     final backgroundValue = values['background']?.toString();
     final background = backgroundValue != null && backgroundValue.isNotEmpty
-        ? DndBackground.values.firstWhere(
-            (b) => b.name == backgroundValue,
-          )
+        ? DndBackground.values.firstWhere((b) => b.name == backgroundValue)
         : null;
 
     final alignmentValue = values['alignment']?.toString();
     final alignment = alignmentValue != null && alignmentValue.isNotEmpty
-        ? DndAlignment.values.firstWhere(
-            (a) => a.name == alignmentValue,
-          )
+        ? DndAlignment.values.firstWhere((a) => a.name == alignmentValue)
         : null;
 
     if (isEditing) {

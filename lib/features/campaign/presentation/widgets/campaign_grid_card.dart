@@ -7,6 +7,7 @@ import 'package:dm_assistant/features/campaign/presentation/screens/campaign_dia
 import 'package:dm_assistant/shared/components/cards/entity_card.dart';
 import 'package:dm_assistant/shared/components/menus/context_menu.dart';
 import 'package:dm_assistant/shared/components/dialogs/base_dialog.dart';
+import 'package:dm_assistant/shared/providers/selected_campaign_provider.dart';
 import 'package:intl/intl.dart';
 
 class CampaignGridCard extends ConsumerWidget {
@@ -16,6 +17,9 @@ class CampaignGridCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final selectedCampaignId = ref.watch(selectedCampaignIdProvider);
+    final isSelected = selectedCampaignId == campaign.id;
+    
     return CampaignContextMenu(
       onEdit: () => _handleEdit(context, ref),
       onDelete: () => _handleDelete(context, ref),
@@ -23,6 +27,7 @@ class CampaignGridCard extends ConsumerWidget {
         title: campaign.name,
         subtitle: campaign.description,
         imagePath: campaign.coverImagePath,
+        isSelected: isSelected,
         details: [
           _buildDetailRow(
             icon: Icons.calendar_today,
@@ -49,7 +54,7 @@ class CampaignGridCard extends ConsumerWidget {
           ),
         ],
         onTap: () {
-          ref.read(selectedCampaignIdProvider.notifier).state = campaign.id;
+          ref.read(selectedCampaignIdProvider.notifier).selectCampaign(campaign.id);
           // TODO: Navigate to campaign dashboard
         },
       ),

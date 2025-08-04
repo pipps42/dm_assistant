@@ -105,22 +105,55 @@ lib/
 - Character model includes required campaign relationship (campaignId: int)
 - D&D enums stored in `shared/models/dnd_enums.dart` for reusability
 
-### UI Patterns
+### UI Patterns & Shared Components
 - Feature-based organization with presentation/screens and presentation/widgets
-- Extensive shared component library in `/shared/components/` with categories:
-  - `actions/` - Action sheets and interactive elements
-  - `buttons/` - Base button components
-  - `cards/` - Card layouts and containers
-  - `dialogs/` - Modal dialogs and forms
-  - `forms/` - Form builders and input handling
-  - `grids/` - Grid view components
-  - `headers/` - Section headers and titles
-  - `inputs/` - Text fields and search bars
-  - `lists/` - List view components
-  - `menus/` - Context menus and dropdowns
-  - `navigation/` - Tab and navigation components
-  - `states/` - Empty states and status indicators
-  - `tiles/` - List tiles and entity displays
+- **CRITICAL: Always maximize reuse of existing shared components before creating new ones**
+- Extensive shared component library in `/shared/components/` with these available components:
+
+#### Actions (`actions/`)
+- `ActionSheet` - Modal bottom sheets with customizable actions, titles, and styles (material/cupertino/custom)
+
+#### Buttons (`buttons/`)
+- `BaseButton` - Foundation button component with consistent styling and behavior
+
+#### Cards (`cards/`)
+- `BaseCard` - Basic card container with consistent styling
+- `EntityCard` - Advanced card for entities with image, title, subtitle, details, actions, and list/grid layouts
+- `EntityDetailRow` - Row component for displaying entity details with label/value pairs
+
+#### Dialogs (`dialogs/`)
+- `BaseDialog` - Foundation dialog component with consistent styling and behavior
+- `EntityFormDialog` - Form dialog for entity creation/editing with validation and actions
+
+#### Forms (`forms/`)
+- `FormBuilder` - Form construction utility with validation and field management
+
+#### Grids (`grids/`)
+- `BaseGridView` - Grid view component with consistent spacing and responsive behavior
+
+#### Headers (`headers/`)
+- `SectionHeader` - Section titles and headers with consistent typography
+
+#### Inputs (`inputs/`)
+- `BaseTextField` - Foundation text input with consistent styling and validation
+- `EntityImagePicker` - Image picker component for entity avatars with local/network image support
+- `SearchBar` - Search input component with filtering capabilities
+
+#### Lists (`lists/`)
+- `BaseListView` - List view component with consistent spacing and behavior
+
+#### Menus (`menus/`)
+- `ContextMenu` - Context menu component for right-click and long-press actions
+
+#### Navigation (`navigation/`)
+- `TabNavigation` - Tab navigation component for switching between views
+
+#### States (`states/`)
+- `EmptyState` - Empty state component with customizable message and icon
+
+#### Tiles (`tiles/`)
+- `EntityListTile` - List tile component for entities with image, title, subtitle, and actions
+
 - Desktop-optimized with consistent spacing and sizing
 - FlexColorScheme for theming with light/dark mode support
 
@@ -133,6 +166,15 @@ lib/
 
 ## Development Workflow
 
+### Code Reuse Policy (CRITICAL)
+**ALWAYS maximize reuse of existing components and code before creating new implementations:**
+
+1. **Before creating new UI components**: Check `/shared/components/` for existing components that can be reused or extended
+2. **Before creating new widgets**: Look for similar patterns in existing features and shared widgets
+3. **Before implementing new functionality**: Search for existing utilities, providers, and repositories that can be leveraged
+4. **When extending components**: Prefer adding parameters/props to existing components over creating new ones
+
+### Feature Development Guidelines
 1. When adding new features, follow the established feature structure under `lib/features/`
 2. For data models, always add Isar annotations and run code generation
 3. Use the Repository → Provider → UI pattern for data flow
@@ -140,6 +182,7 @@ lib/
 5. Test business logic, especially model operations and providers
 6. Every entity MUST belong to a campaign (required campaignId relationship)
 7. D&D-related enums should be added to `shared/models/dnd_enums.dart`
+8. **Prioritize component reuse**: Always check shared components before creating feature-specific widgets
 
 ## Testing Guidelines
 

@@ -1,4 +1,5 @@
 // lib/features/character/presentation/screens/character_list_screen.dart
+import 'package:dm_assistant/shared/providers/selected_campaign_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dm_assistant/features/character/models/character.dart';
@@ -6,7 +7,6 @@ import 'package:dm_assistant/features/character/providers/character_provider.dar
 import 'package:dm_assistant/features/character/presentation/widgets/character_card.dart';
 import 'package:dm_assistant/features/character/presentation/widgets/character_grid_card.dart';
 import 'package:dm_assistant/features/character/presentation/screens/character_dialog.dart';
-import 'package:dm_assistant/features/campaign/providers/campaign_provider.dart';
 import 'package:dm_assistant/shared/layouts/entity_list_screen.dart';
 
 class CharacterListScreen extends ConsumerWidget {

@@ -4,6 +4,7 @@ import 'package:isar/isar.dart';
 import 'package:dm_assistant/features/campaign/models/campaign.dart';
 import 'package:dm_assistant/features/campaign/repositories/campaign_repository.dart';
 import 'package:dm_assistant/shared/providers/entity_provider.dart';
+import 'package:dm_assistant/shared/providers/selected_campaign_provider.dart';
 
 // Core providers
 final isarProvider = Provider<Isar>((ref) {
@@ -162,8 +163,9 @@ final campaignFilterProvider =
       return repository.filter(filters);
     });
 
-// Selected campaign state
-final selectedCampaignIdProvider = StateProvider<Id?>((ref) => null);
+// Selected campaign state (imported from shared providers)
+// This provider has been moved to lib/shared/providers/selected_campaign_provider.dart
+// to provide persistence and better separation of concerns
 
 // View mode state for campaigns (list or grid)
 enum CampaignViewMode { list, grid }

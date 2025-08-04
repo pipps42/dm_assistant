@@ -7,6 +7,7 @@ import 'package:dm_assistant/features/campaign/presentation/screens/campaign_dia
 import 'package:dm_assistant/shared/components/tiles/entity_list_tile.dart';
 import 'package:dm_assistant/shared/components/menus/context_menu.dart';
 import 'package:dm_assistant/shared/components/dialogs/base_dialog.dart';
+import 'package:dm_assistant/shared/providers/selected_campaign_provider.dart';
 
 class CampaignCard extends ConsumerWidget {
   final Campaign campaign;
@@ -15,6 +16,9 @@ class CampaignCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final selectedCampaignId = ref.watch(selectedCampaignIdProvider);
+    final isSelected = selectedCampaignId == campaign.id;
+    
     return CampaignContextMenu(
       onEdit: () => _handleEdit(context, ref),
       onDelete: () => _handleDelete(context, ref),
@@ -23,9 +27,10 @@ class CampaignCard extends ConsumerWidget {
         description: campaign.description,
         createdAt: campaign.createdAt,
         lastPlayed: campaign.lastPlayed,
+        isSelected: isSelected,
         // playerCount: campaign.playerCount,
         onTap: () {
-          ref.read(selectedCampaignIdProvider.notifier).state = campaign.id;
+          ref.read(selectedCampaignIdProvider.notifier).selectCampaign(campaign.id);
           // TODO: Navigate to campaign dashboard
         },
         onEdit: () => _handleEdit(context, ref),

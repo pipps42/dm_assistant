@@ -19,6 +19,8 @@ class EntityCard extends StatelessWidget {
   final Color? fallbackColor;
   final bool showMenu;
   final List<PopupMenuEntry>? menuItems;
+  final bool isSelected;
+  final Color? selectionColor;
 
   const EntityCard({
     super.key,
@@ -34,6 +36,8 @@ class EntityCard extends StatelessWidget {
     this.fallbackColor,
     this.showMenu = false,
     this.menuItems,
+    this.isSelected = false,
+    this.selectionColor,
   });
 
   // Factory constructors for convenience
@@ -47,6 +51,8 @@ class EntityCard extends StatelessWidget {
     this.onLongPress,
     this.showMenu = false,
     this.menuItems,
+    this.isSelected = false,
+    this.selectionColor,
   }) : layout = EntityCardLayout.list,
        actions = null,
        aspectRatio = 1.0,
@@ -63,6 +69,8 @@ class EntityCard extends StatelessWidget {
     this.onLongPress,
     this.aspectRatio = 5 / 4,
     this.fallbackColor,
+    this.isSelected = false,
+    this.selectionColor,
   }) : layout = EntityCardLayout.grid,
        showMenu = false,
        menuItems = null;
@@ -76,11 +84,15 @@ class EntityCard extends StatelessWidget {
 
   Widget _buildListCard(BuildContext context) {
     final theme = Theme.of(context);
+    final selectedColor = selectionColor ?? theme.colorScheme.primary;
     
     return Card(
-      elevation: AppDimens.elevationS,
+      elevation: isSelected ? AppDimens.elevationM : AppDimens.elevationS,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppDimens.radiusM),
+        side: isSelected 
+          ? BorderSide(color: selectedColor, width: 2)
+          : BorderSide.none,
       ),
       child: InkWell(
         onTap: onTap,
@@ -120,6 +132,21 @@ class EntityCard extends StatelessWidget {
                   ],
                 ),
               ),
+              if (isSelected) ...[
+                Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: selectedColor,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.check,
+                    color: Colors.white,
+                    size: 16,
+                  ),
+                ),
+                const SizedBox(width: AppDimens.spacingS),
+              ],
               if (showMenu && menuItems != null)
                 PopupMenuButton(
                   itemBuilder: (context) => menuItems!,
@@ -135,9 +162,17 @@ class EntityCard extends StatelessWidget {
   Widget _buildGridCard(BuildContext context) {
     final theme = Theme.of(context);
     final fallback = fallbackColor ?? theme.colorScheme.surfaceContainerHighest;
+    final selectedColor = selectionColor ?? theme.colorScheme.primary;
 
     return Card(
       clipBehavior: Clip.antiAlias,
+      elevation: isSelected ? AppDimens.elevationM : AppDimens.elevationS,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppDimens.radiusM),
+        side: isSelected 
+          ? BorderSide(color: selectedColor, width: 3)
+          : BorderSide.none,
+      ),
       child: InkWell(
         onTap: onTap,
         onLongPress: onLongPress,
@@ -154,6 +189,32 @@ class EntityCard extends StatelessWidget {
               
               // Content
               _buildGridContent(context),
+              
+              // Selection checkmark (top-left corner)
+              if (isSelected)
+                Positioned(
+                  top: AppDimens.spacingS,
+                  left: AppDimens.spacingS,
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: selectedColor,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.3),
+                          blurRadius: 4,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: const Icon(
+                      Icons.check,
+                      color: Colors.white,
+                      size: 16,
+                    ),
+                  ),
+                ),
               
               // Actions (if any)
               if (actions != null && actions!.isNotEmpty)
