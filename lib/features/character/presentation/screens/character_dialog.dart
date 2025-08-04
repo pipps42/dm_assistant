@@ -85,49 +85,6 @@ class CharacterDialog extends ConsumerWidget {
       customValidator: (values) =>
           _validateCharacter(values, selectedCampaignId),
       fields: [
-        // Campaign info display
-        // FormFieldConfig(
-        //   name: 'campaign_info',
-        //   label: 'Campaign',
-        //   type: FormFieldType.custom,
-        //   customWidget: Container(
-        //     padding: const EdgeInsets.all(AppDimens.spacingM),
-        //     decoration: BoxDecoration(
-        //       color: Theme.of(
-        //         context,
-        //       ).colorScheme.surfaceVariant.withOpacity(0.3),
-        //       borderRadius: BorderRadius.circular(AppDimens.radiusM),
-        //     ),
-        //     child: Row(
-        //       children: [
-        //         Icon(
-        //           Icons.campaign,
-        //           size: AppDimens.iconM,
-        //           color: Theme.of(context).colorScheme.primary,
-        //         ),
-        //         const SizedBox(width: AppDimens.spacingS),
-        //         Expanded(
-        //           child: Column(
-        //             crossAxisAlignment: CrossAxisAlignment.start,
-        //             children: [
-        //               Text(
-        //                 'Campaign',
-        //                 style: Theme.of(context).textTheme.labelSmall,
-        //               ),
-        //               Text(
-        //                 selectedCampaign.name,
-        //                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-        //                   fontWeight: FontWeight.w500,
-        //                 ),
-        //               ),
-        //             ],
-        //           ),
-        //         ),
-        //       ],
-        //     ),
-        //   ),
-        // ),
-
         // Character fields
         FormFieldConfig(
           name: 'name',
@@ -157,6 +114,12 @@ class CharacterDialog extends ConsumerWidget {
                 ),
               )
               .toList(),
+          validator: (value) {
+            if (value == null || value.toString().trim().isEmpty) {
+              return 'Please select a race';
+            }
+            return null;
+          },
           prefixIcon: Icons.groups,
         ),
 
@@ -173,6 +136,12 @@ class CharacterDialog extends ConsumerWidget {
                 ),
               )
               .toList(),
+          validator: (value) {
+            if (value == null || value.toString().trim().isEmpty) {
+              return 'Please select a class';
+            }
+            return null;
+          },
           prefixIcon: Icons.shield,
         ),
 
@@ -181,7 +150,7 @@ class CharacterDialog extends ConsumerWidget {
           label: 'Level',
           type: FormFieldType.number,
           hint: 'Character level (1-20)',
-          initialValue: character?.level.toString(),
+          initialValue: character?.level.toString() ?? '1',
           validator: (value) {
             final level = int.tryParse(value?.toString() ?? '');
             if (level == null || level < 1 || level > 20) {
@@ -194,35 +163,33 @@ class CharacterDialog extends ConsumerWidget {
 
         FormFieldConfig(
           name: 'background',
-          label: 'Background',
+          label: 'Background (optional)',
           type: FormFieldType.dropdown,
           initialValue: character?.background?.name,
-          options: [
-            const FormOption(value: '', label: 'Select background (optional)'),
-            ...DndBackground.values.map(
-              (bg) => FormOption(
-                value: bg.name,
-                label: FormattingUtils.formatEnumName(bg.name),
-              ),
-            ),
-          ],
+          options: DndBackground.values
+              .map(
+                (bg) => FormOption(
+                  value: bg.name,
+                  label: FormattingUtils.formatEnumName(bg.name),
+                ),
+              )
+              .toList(),
           prefixIcon: Icons.history_edu,
         ),
 
         FormFieldConfig(
           name: 'alignment',
-          label: 'Alignment',
+          label: 'Alignment (optional)',
           type: FormFieldType.dropdown,
           initialValue: character?.alignment?.name,
-          options: [
-            const FormOption(value: '', label: 'Select alignment (optional)'),
-            ...DndAlignment.values.map(
-              (alignment) => FormOption(
-                value: alignment.name,
-                label: FormattingUtils.formatEnumName(alignment.name),
-              ),
-            ),
-          ],
+          options: DndAlignment.values
+              .map(
+                (alignment) => FormOption(
+                  value: alignment.name,
+                  label: FormattingUtils.formatEnumName(alignment.name),
+                ),
+              )
+              .toList(),
           prefixIcon: Icons.balance,
         ),
       ],
@@ -254,27 +221,33 @@ class CharacterDialog extends ConsumerWidget {
     final isEditing = character != null;
 
     // Parse enum values
+    final raceValue = values['race']?.toString();
+    if (raceValue == null || raceValue.isEmpty) {
+      throw Exception('Race is required');
+    }
     final race = DndRace.values.firstWhere(
-      (r) => r.name == values['race'],
-      orElse: () => DndRace.human,
+      (r) => r.name == raceValue,
     );
 
+    final classValue = values['characterClass']?.toString();
+    if (classValue == null || classValue.isEmpty) {
+      throw Exception('Class is required');
+    }
     final characterClass = DndClass.values.firstWhere(
-      (c) => c.name == values['characterClass'],
-      orElse: () => DndClass.fighter,
+      (c) => c.name == classValue,
     );
 
-    final background = values['background']?.toString().isNotEmpty == true
+    final backgroundValue = values['background']?.toString();
+    final background = backgroundValue != null && backgroundValue.isNotEmpty
         ? DndBackground.values.firstWhere(
-            (b) => b.name == values['background'],
-            orElse: () => DndBackground.acolyte,
+            (b) => b.name == backgroundValue,
           )
         : null;
 
-    final alignment = values['alignment']?.toString().isNotEmpty == true
+    final alignmentValue = values['alignment']?.toString();
+    final alignment = alignmentValue != null && alignmentValue.isNotEmpty
         ? DndAlignment.values.firstWhere(
-            (a) => a.name == values['alignment'],
-            orElse: () => DndAlignment.lawfulGood,
+            (a) => a.name == alignmentValue,
           )
         : null;
 
@@ -301,6 +274,8 @@ class CharacterDialog extends ConsumerWidget {
         alignment: alignment,
         avatarPath: imagePath,
       );
+      // Force refresh of campaign characters list
+      ref.invalidate(campaignCharactersProvider(campaignId));
     }
   }
 }

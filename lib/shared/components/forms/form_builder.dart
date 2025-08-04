@@ -141,6 +141,7 @@ class _FormBuilderState extends ConsumerState<FormBuilder> {
           validator: field.validator,
           enabled: field.enabled && !_isSubmitting,
           hint: field.hint,
+          prefixIcon: field.prefixIcon,
         );
 
       case FormFieldType.checkbox:
@@ -291,6 +292,7 @@ class _DropdownField extends StatelessWidget {
   final ValueChanged<String?>? onChanged;
   final FormFieldValidator<String?>? validator;
   final bool enabled;
+  final IconData? prefixIcon;
 
   const _DropdownField({
     required this.label,
@@ -300,6 +302,7 @@ class _DropdownField extends StatelessWidget {
     this.onChanged,
     this.validator,
     this.enabled = true,
+    this.prefixIcon,
   });
 
   @override
@@ -313,6 +316,7 @@ class _DropdownField extends StatelessWidget {
         hintText: hint,
         filled: true,
         fillColor: theme.colorScheme.surface,
+        prefixIcon: prefixIcon != null ? Icon(prefixIcon) : null,
         contentPadding: const EdgeInsets.symmetric(
           horizontal: AppDimens.spacingM,
           vertical: AppDimens.spacingM,

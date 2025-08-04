@@ -1,4 +1,5 @@
 // lib/shared/components/tiles/entity_list_tile.dart
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:dm_assistant/core/constants/dimens.dart';
 import 'package:dm_assistant/shared/components/buttons/base_button.dart';
@@ -196,7 +197,7 @@ class EntityListTile extends StatelessWidget {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(AppDimens.radiusS),
           image: DecorationImage(
-            image: NetworkImage(imageUrl!),
+            image: _getImageProvider(imageUrl!),
             fit: BoxFit.cover,
           ),
         ),
@@ -406,6 +407,22 @@ class EntityListTile extends StatelessWidget {
       default:
         return Icons.info_outline;
     }
+  }
+
+  ImageProvider _getImageProvider(String imageUrl) {
+    // Check if it's a network URL (http/https)
+    if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+      return NetworkImage(imageUrl);
+    }
+    
+    // Check if it's a file path (local file)
+    final file = File(imageUrl);
+    if (file.existsSync()) {
+      return FileImage(file);
+    }
+    
+    // Fallback to network image (this might still fail, but preserves original behavior)
+    return NetworkImage(imageUrl);
   }
 }
 

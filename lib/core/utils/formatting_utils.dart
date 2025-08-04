@@ -7,10 +7,26 @@ class FormattingUtils {
 
   /// Formats enum names by capitalizing first letter and replacing underscores with spaces
   /// 
-  /// Example: 'dark_elf' -> 'Dark elf'
+  /// Examples: 
+  /// - 'dark_elf' -> 'Dark elf'
+  /// - 'lawfulGood' -> 'Lawful good'
+  /// - 'chaoticEvil' -> 'Chaotic evil'
   static String formatEnumName(String enumName) {
     if (enumName.isEmpty) return enumName;
     
+    // Handle camelCase (like lawfulGood, chaoticEvil)
+    if (enumName.contains(RegExp(r'[A-Z]'))) {
+      return enumName
+          .replaceAllMapped(RegExp(r'([A-Z])'), (match) => ' ${match.group(1)}')
+          .trim()
+          .split(' ')
+          .map((word) => word.isEmpty 
+              ? word 
+              : word[0].toUpperCase() + word.substring(1).toLowerCase())
+          .join(' ');
+    }
+    
+    // Handle snake_case (like dark_elf)
     return enumName
         .split('_')
         .map((word) => word.isEmpty 

@@ -19,7 +19,7 @@ class CampaignListScreen extends ConsumerWidget {
       listItemBuilder: (campaign) => CampaignCard(campaign: campaign),
       gridItemBuilder: (campaign) => CampaignGridCard(campaign: campaign),
       createDialogBuilder: () => const CampaignDialog(),
-      onRefresh: () => ref.refresh(campaignListProvider),
+      onRefresh: () async => ref.invalidate(campaignListProvider),
       viewModeProvider: campaignViewModeProvider,
       title: 'Campaigns',
       emptyTitle: 'No campaigns yet',
@@ -31,4 +31,3 @@ class CampaignListScreen extends ConsumerWidget {
     );
   }
 }
-

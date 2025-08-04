@@ -101,30 +101,6 @@ class CharacterEntityProvider extends DnDEntityProvider<Character> {
     }
     return [];
   }
-
-  // Create character with factory method
-  Future<void> createCharacter({
-    required String name,
-    String? avatarPath,
-    required int campaignId,
-    required DndRace race,
-    required DndClass characterClass,
-    int level = 1,
-    DndBackground? background,
-    DndAlignment? alignment,
-  }) async {
-    final character = Character.create(
-      name: name,
-      avatarPath: avatarPath,
-      campaignId: campaignId,
-      race: race,
-      characterClass: characterClass,
-      level: level,
-      background: background,
-      alignment: alignment,
-    );
-    await create(character);
-  }
 }
 
 // Character entity notifier for CRUD operations
@@ -153,6 +129,8 @@ class CharacterEntityNotifier extends EntityNotifier<Character> {
       alignment: alignment,
     );
     await create(character);
+    // Also invalidate campaign-specific provider
+    ref.invalidate(campaignCharactersProvider(campaignId));
   }
 
   // Character-specific update method
@@ -180,6 +158,28 @@ class CharacterEntityNotifier extends EntityNotifier<Character> {
         alignment: alignment,
       );
       await update(updated);
+      // Also invalidate campaign-specific provider
+      if (campaignId != null) {
+        ref.invalidate(campaignCharactersProvider(campaignId));
+      } else {
+        // If campaignId is not provided, use existing campaignId
+        ref.invalidate(campaignCharactersProvider(existing.campaignId));
+      }
+    }
+  }
+
+  // Override deleteById to also invalidate campaign-specific providers
+  @override
+  Future<void> deleteById(Id id) async {
+    // Get the character before deletion to know which campaign to invalidate
+    final character = await repository.getById(id);
+    
+    // Call the parent deleteById method
+    await super.deleteById(id);
+    
+    // Invalidate campaign-specific provider if character was found
+    if (character != null) {
+      ref.invalidate(campaignCharactersProvider(character.campaignId));
     }
   }
 }

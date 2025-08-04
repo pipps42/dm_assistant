@@ -23,9 +23,9 @@ class CharacterListScreen extends ConsumerWidget {
       listItemBuilder: (character) => CharacterCard(character: character),
       gridItemBuilder: (character) => CharacterGridCard(character: character),
       createDialogBuilder: () => const CharacterDialog(),
-      onRefresh: () {
+      onRefresh: () async {
         if (selectedCampaignId != null) {
-          ref.refresh(campaignCharactersProvider(selectedCampaignId));
+          ref.invalidate(campaignCharactersProvider(selectedCampaignId));
         }
       },
       viewModeProvider: characterViewModeProvider,
@@ -45,4 +45,3 @@ class CharacterListScreen extends ConsumerWidget {
     );
   }
 }
-
