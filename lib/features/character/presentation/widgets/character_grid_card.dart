@@ -7,7 +7,6 @@ import 'package:dm_assistant/features/character/presentation/screens/character_d
 import 'package:dm_assistant/shared/components/menus/context_menu.dart';
 import 'package:dm_assistant/shared/components/cards/entity_card.dart';
 import 'package:dm_assistant/shared/components/dialogs/base_dialog.dart';
-import 'package:go_router/go_router.dart';
 
 class CharacterGridCard extends ConsumerWidget {
   final Character character;
@@ -126,8 +125,6 @@ class CharacterGridCard extends ConsumerWidget {
       dialog: BaseDialog.confirm(
         title: 'Delete Character?',
         content: Text('Delete "${character.name}"? This cannot be undone.'),
-        onConfirm: () => context.pop(true),
-        onCancel: () => context.pop(false),
         confirmText: 'Delete',
         cancelText: 'Cancel',
       ),

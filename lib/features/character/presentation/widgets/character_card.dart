@@ -113,8 +113,6 @@ class CharacterCard extends ConsumerWidget {
       dialog: BaseDialog.confirm(
         title: 'Delete Character?',
         content: Text('Delete "${character.name}"? This cannot be undone.'),
-        onConfirm: () => context.pop(true),
-        onCancel: () => context.pop(false),
         confirmText: 'Delete',
         cancelText: 'Cancel',
       ),

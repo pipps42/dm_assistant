@@ -33,8 +33,6 @@ class BaseDialog extends StatelessWidget {
     required String title,
     String? subtitle,
     Widget? content,
-    VoidCallback? onConfirm,
-    VoidCallback? onCancel,
     String confirmText = 'Confirm',
     String cancelText = 'Cancel',
   }) {
@@ -46,13 +44,15 @@ class BaseDialog extends StatelessWidget {
       actions: [
         DialogAction(
           label: cancelText,
-          onPressed: onCancel ?? () {},
+          onPressed: () {},
           isDefault: true,
+          result: false,
         ),
         DialogAction(
           label: confirmText,
-          onPressed: onConfirm ?? () {},
+          onPressed: () {},
           isPrimary: true,
+          result: true,
         ),
       ],
     );
@@ -219,7 +219,7 @@ class BaseDialog extends StatelessWidget {
         onPressed: () {
           action.onPressed();
           if (action.shouldClose) {
-            context.pop();
+            context.pop(action.result);
           }
         },
         type: ButtonType.primary,
@@ -230,7 +230,7 @@ class BaseDialog extends StatelessWidget {
         onPressed: () {
           action.onPressed();
           if (action.shouldClose) {
-            context.pop();
+            context.pop(action.result);
           }
         },
         type: ButtonType.secondary,
@@ -241,7 +241,7 @@ class BaseDialog extends StatelessWidget {
         onPressed: () {
           action.onPressed();
           if (action.shouldClose) {
-            context.pop();
+            context.pop(action.result);
           }
         },
         type: ButtonType.text,
@@ -267,6 +267,7 @@ class DialogAction {
   final bool isPrimary;
   final bool isDefault;
   final bool shouldClose;
+  final dynamic result;
 
   const DialogAction({
     required this.label,
@@ -274,5 +275,6 @@ class DialogAction {
     this.isPrimary = false,
     this.isDefault = false,
     this.shouldClose = true,
+    this.result,
   });
 }
