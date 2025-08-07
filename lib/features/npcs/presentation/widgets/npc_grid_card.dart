@@ -1,26 +1,26 @@
-// lib/features/character/presentation/widgets/character_grid_card.dart
+// lib/features/npcs/presentation/widgets/npc_grid_card.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
-import 'package:dm_assistant/features/character/models/character.dart';
-import 'package:dm_assistant/features/character/providers/character_provider.dart';
-import 'package:dm_assistant/features/character/presentation/screens/character_dialog.dart';
+import 'package:dm_assistant/features/npcs/models/npc.dart';
+import 'package:dm_assistant/features/npcs/providers/npc_provider.dart';
+import 'package:dm_assistant/features/npcs/presentation/screens/npc_dialog.dart';
 import 'package:dm_assistant/shared/components/cards/entity_card.dart';
 import 'package:dm_assistant/shared/components/cards/entity_configs.dart';
 import 'package:dm_assistant/shared/components/dialogs/base_dialog.dart';
 
-class CharacterGridCard extends ConsumerWidget {
-  final Character character;
+class NpcGridCard extends ConsumerWidget {
+  final Npc npc;
 
-  const CharacterGridCard({super.key, required this.character});
+  const NpcGridCard({super.key, required this.npc});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return EntityCard<Character>.grid(
-      entity: character,
-      config: EntityConfigs.character,
+    return EntityCard<Npc>.grid(
+      entity: npc,
+      config: EntityConfigs.npc,
       onTap: () {
-        context.go('/characters/${character.id}');
+        // Future: Navigate to NPC detail screen
+        // context.go('/npcs/${npc.id}');
       },
       onEdit: () => _handleEdit(context, ref),
       onDelete: () => _handleDelete(context, ref),
@@ -30,7 +30,7 @@ class CharacterGridCard extends ConsumerWidget {
   Future<void> _handleEdit(BuildContext context, WidgetRef ref) async {
     showDialog(
       context: context,
-      builder: (context) => CharacterDialog(character: character),
+      builder: (context) => NpcDialog(npc: npc),
     );
   }
 
@@ -38,15 +38,15 @@ class CharacterGridCard extends ConsumerWidget {
     final confirmed = await BaseDialog.show<bool>(
       context: context,
       dialog: BaseDialog.confirm(
-        title: 'Delete Character?',
-        content: Text('Delete "${character.name}"? This cannot be undone.'),
+        title: 'Delete NPC?',
+        content: Text('Delete "${npc.name}"? This cannot be undone.'),
         confirmText: 'Delete',
         cancelText: 'Cancel',
       ),
     );
 
     if (confirmed == true) {
-      await ref.read(characterCrudProvider.notifier).deleteById(character.id);
+      await ref.read(npcCrudProvider.notifier).deleteById(npc.id);
     }
   }
 }

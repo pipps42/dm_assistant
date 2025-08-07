@@ -3,77 +3,60 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dm_assistant/core/constants/dimens.dart';
+import 'package:dm_assistant/shared/components/cards/entity_display_config.dart';
 
 enum EntityCardLayout { list, grid }
 
-class EntityCard extends StatelessWidget {
-  final String title;
-  final String? subtitle;
-  final String? imagePath;
-  final List<Widget> details;
-  final List<Widget>? actions;
-  final VoidCallback? onTap;
-  final VoidCallback? onLongPress;
+/// Universal card component for displaying any type of entity
+/// Uses EntityDisplayConfig to customize rendering for different entity types
+class EntityCard<T> extends StatelessWidget {
+  final T entity;
+  final EntityDisplayConfig<T> config;
   final EntityCardLayout layout;
-  final double aspectRatio;
-  final Color? fallbackColor;
-  final bool showMenu;
-  final List<PopupMenuEntry>? menuItems;
+  final VoidCallback? onTap;
+  final VoidCallback? onEdit;
+  final VoidCallback? onDelete;
   final bool isSelected;
   final Color? selectionColor;
+  final double aspectRatio;
 
   const EntityCard({
     super.key,
-    required this.title,
-    this.subtitle,
-    this.imagePath,
-    this.details = const [],
-    this.actions,
-    this.onTap,
-    this.onLongPress,
+    required this.entity,
+    required this.config,
     this.layout = EntityCardLayout.list,
-    this.aspectRatio = 5 / 4, // Default 5:4 ratio for grid
-    this.fallbackColor,
-    this.showMenu = false,
-    this.menuItems,
+    this.onTap,
+    this.onEdit,
+    this.onDelete,
     this.isSelected = false,
     this.selectionColor,
+    this.aspectRatio = 5 / 4,
   });
 
   // Factory constructors for convenience
   const EntityCard.list({
     super.key,
-    required this.title,
-    this.subtitle,
-    this.imagePath,
-    this.details = const [],
+    required this.entity,
+    required this.config,
     this.onTap,
-    this.onLongPress,
-    this.showMenu = false,
-    this.menuItems,
+    this.onEdit,
+    this.onDelete,
     this.isSelected = false,
     this.selectionColor,
   }) : layout = EntityCardLayout.list,
-       actions = null,
-       aspectRatio = 1.0,
-       fallbackColor = null;
+       aspectRatio = 1.0;
 
   const EntityCard.grid({
     super.key,
-    required this.title,
-    this.subtitle,
-    this.imagePath,
-    this.details = const [],
-    this.actions,
+    required this.entity,
+    required this.config,
     this.onTap,
-    this.onLongPress,
-    this.aspectRatio = 5 / 4,
-    this.fallbackColor,
+    this.onEdit,
+    this.onDelete,
     this.isSelected = false,
     this.selectionColor,
-  }) : layout = EntityCardLayout.grid,
-       showMenu = false,
-       menuItems = null;
+    this.aspectRatio = 5 / 4,
+  }) : layout = EntityCardLayout.grid;
 
   @override
   Widget build(BuildContext context) {
@@ -85,6 +68,11 @@ class EntityCard extends StatelessWidget {
   Widget _buildListCard(BuildContext context) {
     final theme = Theme.of(context);
     final selectedColor = selectionColor ?? theme.colorScheme.primary;
+    final title = config.titleExtractor(entity);
+    final subtitle = config.subtitleExtractor?.call(entity);
+    final imagePath = config.imagePathExtractor?.call(entity);
+    final badges = config.badgesBuilder?.call(entity, context) ?? [];
+    final metadata = config.metadataExtractor?.call(entity) ?? {};
     
     return Card(
       elevation: isSelected ? AppDimens.elevationM : AppDimens.elevationS,
@@ -96,13 +84,12 @@ class EntityCard extends StatelessWidget {
       ),
       child: InkWell(
         onTap: onTap,
-        onLongPress: onLongPress,
         borderRadius: BorderRadius.circular(AppDimens.radiusM),
         child: Padding(
           padding: const EdgeInsets.all(AppDimens.spacingM),
           child: Row(
             children: [
-              _buildListAvatar(context),
+              _buildListAvatar(context, imagePath),
               const SizedBox(width: AppDimens.spacingM),
               Expanded(
                 child: Column(
@@ -114,10 +101,10 @@ class EntityCard extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    if (subtitle != null && subtitle!.isNotEmpty) ...[
+                    if (subtitle != null && subtitle.isNotEmpty) ...[
                       const SizedBox(height: AppDimens.spacingXS),
                       Text(
-                        subtitle!,
+                        subtitle,
                         style: theme.textTheme.bodyMedium?.copyWith(
                           color: theme.colorScheme.onSurface.withOpacity(0.7),
                         ),
@@ -125,14 +112,36 @@ class EntityCard extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                     ],
-                    if (details.isNotEmpty) ...[
+                    if (badges.isNotEmpty) ...[
                       const SizedBox(height: AppDimens.spacingXS),
-                      ...details,
+                      Wrap(
+                        spacing: AppDimens.spacingXS,
+                        runSpacing: AppDimens.spacingXS,
+                        children: badges,
+                      ),
                     ],
                   ],
                 ),
               ),
+              if (metadata.isNotEmpty) ...[
+                const SizedBox(width: AppDimens.spacingS),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: metadata.entries.map((entry) => 
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 2),
+                      child: Text(
+                        entry.value,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurface.withOpacity(0.6),
+                        ),
+                      ),
+                    ),
+                  ).toList(),
+                ),
+              ],
               if (isSelected) ...[
+                const SizedBox(width: AppDimens.spacingS),
                 Container(
                   padding: const EdgeInsets.all(4),
                   decoration: BoxDecoration(
@@ -145,13 +154,7 @@ class EntityCard extends StatelessWidget {
                     size: 16,
                   ),
                 ),
-                const SizedBox(width: AppDimens.spacingS),
               ],
-              if (showMenu && menuItems != null)
-                PopupMenuButton(
-                  itemBuilder: (context) => menuItems!,
-                  icon: const Icon(Icons.more_vert),
-                ),
             ],
           ),
         ),
@@ -161,8 +164,19 @@ class EntityCard extends StatelessWidget {
 
   Widget _buildGridCard(BuildContext context) {
     final theme = Theme.of(context);
-    final fallback = fallbackColor ?? theme.colorScheme.surfaceContainerHighest;
     final selectedColor = selectionColor ?? theme.colorScheme.primary;
+    final title = config.titleExtractor(entity);
+    final subtitle = config.subtitleExtractor?.call(entity);
+    final imagePath = config.imagePathExtractor?.call(entity);
+    final details = config.detailsBuilder?.call(entity, context) ?? [];
+    final fallbackColor = config.fallbackColorExtractor?.call(entity, context) 
+        ?? theme.colorScheme.surfaceContainerHighest;
+    final actions = config.actionsBuilder?.call(
+      entity, 
+      context, 
+      onEdit ?? () {}, 
+      onDelete ?? () {}
+    ) ?? [];
 
     return Card(
       clipBehavior: Clip.antiAlias,
@@ -175,20 +189,19 @@ class EntityCard extends StatelessWidget {
       ),
       child: InkWell(
         onTap: onTap,
-        onLongPress: onLongPress,
         child: AspectRatio(
           aspectRatio: aspectRatio,
           child: Stack(
             fit: StackFit.expand,
             children: [
               // Background image or fallback
-              _buildGridBackground(context, fallback),
+              _buildGridBackground(context, imagePath, fallbackColor),
               
               // Gradient overlay
               _buildGradientOverlay(),
               
               // Content
-              _buildGridContent(context),
+              _buildGridContent(context, title, subtitle, details),
               
               // Selection checkmark (top-left corner)
               if (isSelected)
@@ -217,8 +230,8 @@ class EntityCard extends StatelessWidget {
                 ),
               
               // Actions (if any)
-              if (actions != null && actions!.isNotEmpty)
-                _buildGridActions(context),
+              if (actions.isNotEmpty)
+                _buildGridActions(actions),
             ],
           ),
         ),
@@ -226,34 +239,52 @@ class EntityCard extends StatelessWidget {
     );
   }
 
-  Widget _buildListAvatar(BuildContext context) {
+  Widget _buildListAvatar(BuildContext context, String? imagePath) {
     final theme = Theme.of(context);
     
-    if (imagePath == null || imagePath!.isEmpty) {
+    if (imagePath == null || imagePath.isEmpty) {
       return CircleAvatar(
         radius: 24,
         backgroundColor: theme.colorScheme.primary.withOpacity(0.1),
-        child: Icon(Icons.person, color: theme.colorScheme.primary),
+        child: Icon(config.fallbackIcon, color: theme.colorScheme.primary),
       );
     }
 
     return CircleAvatar(
       radius: 24,
-      backgroundImage: imagePath!.startsWith('http')
-          ? CachedNetworkImageProvider(imagePath!)
-          : FileImage(File(imagePath!)) as ImageProvider,
+      backgroundImage: imagePath.startsWith('http')
+          ? CachedNetworkImageProvider(imagePath)
+          : FileImage(File(imagePath)) as ImageProvider,
+      onBackgroundImageError: (exception, stackTrace) {},
+      child: imagePath.startsWith('http')
+          ? null
+          : (!File(imagePath).existsSync()
+              ? Icon(config.fallbackIcon, color: theme.colorScheme.primary)
+              : null),
     );
   }
 
-  Widget _buildGridBackground(BuildContext context, Color fallback) {
-    if (imagePath != null && imagePath!.isNotEmpty) {
-      return Image.file(
-        File(imagePath!),
-        fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) => _buildGridFallbackBackground(fallback),
-      );
+  Widget _buildGridBackground(BuildContext context, String? imagePath, Color fallbackColor) {
+    if (imagePath != null && imagePath.isNotEmpty) {
+      if (imagePath.startsWith('http')) {
+        return CachedNetworkImage(
+          imageUrl: imagePath,
+          fit: BoxFit.cover,
+          errorWidget: (context, url, error) => _buildGridFallbackBackground(fallbackColor),
+          placeholder: (context, url) => _buildGridFallbackBackground(fallbackColor),
+        );
+      } else {
+        final file = File(imagePath);
+        if (file.existsSync()) {
+          return Image.file(
+            file,
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) => _buildGridFallbackBackground(fallbackColor),
+          );
+        }
+      }
     }
-    return _buildGridFallbackBackground(fallback);
+    return _buildGridFallbackBackground(fallbackColor);
   }
 
   Widget _buildGridFallbackBackground(Color color) {
@@ -261,7 +292,7 @@ class EntityCard extends StatelessWidget {
       color: color,
       child: Center(
         child: Icon(
-          Icons.image_outlined,
+          config.fallbackIcon,
           size: 48,
           color: Colors.white.withOpacity(0.3),
         ),
@@ -286,7 +317,7 @@ class EntityCard extends StatelessWidget {
     );
   }
 
-  Widget _buildGridContent(BuildContext context) {
+  Widget _buildGridContent(BuildContext context, String title, String? subtitle, List<Widget> details) {
     final theme = Theme.of(context);
     
     return Padding(
@@ -315,10 +346,10 @@ class EntityCard extends StatelessWidget {
           ),
           
           // Subtitle
-          if (subtitle != null && subtitle!.isNotEmpty) ...[
+          if (subtitle != null && subtitle.isNotEmpty) ...[
             const SizedBox(height: AppDimens.spacingXS),
             Text(
-              subtitle!,
+              subtitle,
               style: theme.textTheme.bodySmall?.copyWith(
                 color: Colors.white.withOpacity(0.9),
                 shadows: [
@@ -339,19 +370,7 @@ class EntityCard extends StatelessWidget {
             const SizedBox(height: AppDimens.spacingS),
             ...details.map((detail) => Padding(
               padding: const EdgeInsets.only(bottom: AppDimens.spacingXS),
-              child: DefaultTextStyle(
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: Colors.white.withOpacity(0.8),
-                  shadows: [
-                    Shadow(
-                      offset: const Offset(0, 1),
-                      blurRadius: 2,
-                      color: Colors.black.withOpacity(0.8),
-                    ),
-                  ],
-                ) ?? const TextStyle(),
-                child: detail,
-              ),
+              child: detail,
             )),
           ],
         ],
@@ -359,7 +378,7 @@ class EntityCard extends StatelessWidget {
     );
   }
 
-  Widget _buildGridActions(BuildContext context) {
+  Widget _buildGridActions(List<Widget> actions) {
     return Positioned(
       top: AppDimens.spacingS,
       right: AppDimens.spacingS,
@@ -370,7 +389,7 @@ class EntityCard extends StatelessWidget {
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
-          children: actions!,
+          children: actions,
         ),
       ),
     );

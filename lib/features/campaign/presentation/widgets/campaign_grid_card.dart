@@ -5,10 +5,9 @@ import 'package:dm_assistant/features/campaign/models/campaign.dart';
 import 'package:dm_assistant/features/campaign/providers/campaign_provider.dart';
 import 'package:dm_assistant/features/campaign/presentation/screens/campaign_dialog.dart';
 import 'package:dm_assistant/shared/components/cards/entity_card.dart';
-import 'package:dm_assistant/shared/components/menus/context_menu.dart';
+import 'package:dm_assistant/shared/components/cards/entity_configs.dart';
 import 'package:dm_assistant/shared/components/dialogs/base_dialog.dart';
 import 'package:dm_assistant/shared/providers/selected_campaign_provider.dart';
-import 'package:intl/intl.dart';
 
 class CampaignGridCard extends ConsumerWidget {
   final Campaign campaign;
@@ -19,67 +18,19 @@ class CampaignGridCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedCampaignId = ref.watch(selectedCampaignIdProvider);
     final isSelected = selectedCampaignId == campaign.id;
-    
-    return CampaignContextMenu(
+
+    return EntityCard<Campaign>.grid(
+      entity: campaign,
+      config: EntityConfigs.campaign,
+      isSelected: isSelected,
+      onTap: () => _handleSelect(ref),
       onEdit: () => _handleEdit(context, ref),
       onDelete: () => _handleDelete(context, ref),
-      child: EntityCard.grid(
-        title: campaign.name,
-        subtitle: campaign.description,
-        imagePath: campaign.coverImagePath,
-        isSelected: isSelected,
-        details: [
-          _buildDetailRow(
-            icon: Icons.calendar_today,
-            label: 'Created',
-            value: DateFormat('MMM d, y').format(campaign.createdAt),
-          ),
-          if (campaign.lastPlayed != null)
-            _buildDetailRow(
-              icon: Icons.play_circle_outline,
-              label: 'Last played',
-              value: DateFormat('MMM d, y').format(campaign.lastPlayed!),
-            ),
-        ],
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.edit, color: Colors.white, size: 20),
-            onPressed: () => _handleEdit(context, ref),
-            tooltip: 'Edit Campaign',
-          ),
-          IconButton(
-            icon: const Icon(Icons.delete, color: Colors.white, size: 20),
-            onPressed: () => _handleDelete(context, ref),
-            tooltip: 'Delete Campaign',
-          ),
-        ],
-        onTap: () {
-          ref.read(selectedCampaignIdProvider.notifier).selectCampaign(campaign.id);
-          // TODO: Navigate to campaign dashboard
-        },
-      ),
     );
   }
 
-  Widget _buildDetailRow({
-    required IconData icon,
-    required String label,
-    required String value,
-  }) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icon, size: 12, color: Colors.white.withOpacity(0.8)),
-        const SizedBox(width: 4),
-        Flexible(
-          child: Text(
-            '$label: $value',
-            style: const TextStyle(fontSize: 11),
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-      ],
-    );
+  void _handleSelect(WidgetRef ref) {
+    ref.read(selectedCampaignIdProvider.notifier).state = campaign.id;
   }
 
   Future<void> _handleEdit(BuildContext context, WidgetRef ref) async {

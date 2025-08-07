@@ -6,6 +6,7 @@ import 'package:dm_assistant/shared/components/lists/base_list_view.dart';
 import 'package:dm_assistant/shared/components/grids/base_grid_view.dart';
 import 'package:dm_assistant/features/campaign/providers/campaign_provider.dart';
 import 'package:dm_assistant/features/character/providers/character_provider.dart';
+import 'package:dm_assistant/features/npcs/providers/npc_provider.dart';
 
 // Remove EntityViewMode enum - use provider-specific enums directly
 
@@ -138,6 +139,8 @@ class EntityListScreen<T> extends ConsumerWidget {
       return isList ? CampaignViewMode.list : CampaignViewMode.grid;
     } else if (enumType.toString().contains('CharacterViewMode')) {
       return isList ? CharacterViewMode.list : CharacterViewMode.grid;
+    } else if (enumType.toString().contains('NpcViewMode')) {
+      return isList ? NpcViewMode.list : NpcViewMode.grid;
     }
     // Fallback - this shouldn't happen
     return isList;

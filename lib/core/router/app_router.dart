@@ -6,6 +6,7 @@ import 'package:dm_assistant/features/campaign/presentation/screens/campaign_lis
 import 'package:dm_assistant/features/character/presentation/screens/character_list_screen.dart';
 import 'package:dm_assistant/features/character/presentation/screens/character_detail_screen.dart';
 import 'package:dm_assistant/features/character/providers/character_provider.dart';
+import 'package:dm_assistant/features/npcs/presentation/screens/npc_list_screen.dart';
 import 'package:dm_assistant/shared/layouts/desktop_shell.dart';
 import 'package:dm_assistant/shared/components/navigation/breadcrumb_widget.dart';
 
@@ -46,6 +47,16 @@ final appRouter = GoRouter(
               },
             ),
           ],
+        ),
+        GoRoute(
+          path: '/npcs',
+          pageBuilder: (context, state) => NoTransitionPage(
+            key: state.pageKey,
+            child: DesktopShell(
+              breadcrumbs: BreadcrumbBuilder.forSection('NPCs'),
+              child: const NpcListScreen(),
+            ),
+          ),
         ),
         GoRoute(
           path: '/sessions',

@@ -69,3 +69,62 @@ enum DndBackground {
   const DndBackground(this.displayName);
   final String displayName;
 }
+
+/// Creature types in D&D 5e (for NPCs and monsters)
+enum DndCreatureType {
+  aberration('Aberration'),
+  beast('Beast'),
+  celestial('Celestial'),
+  construct('Construct'),
+  dragon('Dragon'),
+  elemental('Elemental'),
+  fey('Fey'),
+  fiend('Fiend'),
+  giant('Giant'),
+  humanoid('Humanoid'),
+  monstrosity('Monstrosity'),
+  ooze('Ooze'),
+  plant('Plant'),
+  undead('Undead');
+
+  const DndCreatureType(this.displayName);
+  final String displayName;
+}
+
+/// NPC roles in the world
+enum NpcRole {
+  citizen('Citizen'),
+  hermit('Hermit'),
+  ruler('Ruler'),
+  tyrant('Tyrant'),
+  guard('Guard'),
+  adventurer('Adventurer'),
+  merchant('Merchant'),
+  scholar('Scholar'),
+  priest('Priest'),
+  criminal('Criminal'),
+  noble('Noble'),
+  servant('Servant'),
+  soldier('Soldier'),
+  artisan('Artisan'),
+  farmer('Farmer'),
+  innkeeper('Innkeeper');
+
+  const NpcRole(this.displayName);
+  final String displayName;
+}
+
+/// NPC attitude towards the party
+enum NpcAttitude {
+  friendly('Friendly'),
+  suspicious('Suspicious'),
+  indifferent('Indifferent'),
+  hostile('Hostile'),
+  helpful('Helpful'),
+  neutral('Neutral'),
+  fearful('Fearful'),
+  respectful('Respectful');
+
+  const NpcAttitude(this.displayName);
+  final String displayName;
+}

@@ -4,8 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dm_assistant/features/campaign/models/campaign.dart';
 import 'package:dm_assistant/features/campaign/providers/campaign_provider.dart';
 import 'package:dm_assistant/features/campaign/presentation/screens/campaign_dialog.dart';
-import 'package:dm_assistant/shared/components/tiles/entity_list_tile.dart';
-import 'package:dm_assistant/shared/components/menus/context_menu.dart';
+import 'package:dm_assistant/shared/components/cards/entity_card.dart';
+import 'package:dm_assistant/shared/components/cards/entity_configs.dart';
 import 'package:dm_assistant/shared/components/dialogs/base_dialog.dart';
 import 'package:dm_assistant/shared/providers/selected_campaign_provider.dart';
 
@@ -18,25 +18,19 @@ class CampaignCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedCampaignId = ref.watch(selectedCampaignIdProvider);
     final isSelected = selectedCampaignId == campaign.id;
-    
-    return CampaignContextMenu(
+
+    return EntityCard<Campaign>.list(
+      entity: campaign,
+      config: EntityConfigs.campaign,
+      isSelected: isSelected,
+      onTap: () => _handleSelect(ref),
       onEdit: () => _handleEdit(context, ref),
       onDelete: () => _handleDelete(context, ref),
-      child: CampaignListTile(
-        title: campaign.name,
-        description: campaign.description,
-        createdAt: campaign.createdAt,
-        lastPlayed: campaign.lastPlayed,
-        isSelected: isSelected,
-        // playerCount: campaign.playerCount,
-        onTap: () {
-          ref.read(selectedCampaignIdProvider.notifier).selectCampaign(campaign.id);
-          // TODO: Navigate to campaign dashboard
-        },
-        onEdit: () => _handleEdit(context, ref),
-        onDelete: () => _handleDelete(context, ref),
-      ),
     );
+  }
+
+  void _handleSelect(WidgetRef ref) {
+    ref.read(selectedCampaignIdProvider.notifier).state = campaign.id;
   }
 
   Future<void> _handleEdit(BuildContext context, WidgetRef ref) async {
